@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eMaktab - Elektron Ta'lim Portali</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Maxsus scrollbar va interaktiv animatsiyalar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .badge-grade-5 { background-color: #10b981; color: white; }
+    .badge-grade-4 { background-color: #3b82f6; color: white; }
+    .badge-grade-3 { background-color: #f59e0b; color: white; }
+    .badge-grade-2 { background-color: #ef4444; color: white; }
+    .badge-nb { background-color: #64748b; color: white; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-900">
+
+  <!-- Bosh menyu / Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logotip va Tizim nomi -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-xl tracking-tight text-blue-700">e<span class="text-slate-900">Maktab</span></span>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-sm bg-blue-100 text-blue-700">UZ</span>
+            </div>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Raqamli ta'lim platformasi</p>
+          </div>
+        </div>
+
+        <!-- O'rtadagi qidiruv va sinf ma'lumoti -->
+        <div class="hidden md:flex items-center bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+          <span>Toshkent sh. 177-IDUM • <strong class="text-slate-800" id="headerClassLabel">9-"A" sinf</strong></span>
+        </div>
+
+        <!-- Foydalanuvchi roli, til va profil sozlamalari -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Til tanlash -->
+          <div class="relative">
+            <select id="langSelect" onchange="changeLanguage(this.value)" class="text-xs bg-slate-100 hover:bg-slate-200 border-none rounded-lg px-2.5 py-2 font-medium cursor-pointer text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="uz">🇺🇿 O'zbekcha</option>
+              <option value="ru">🇷🇺 Русский</option>
+            </select>
+          </div>
+
+          <!-- Rol almashtirish (O'quvchi / O'qituvchi) -->
+          <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200 text-xs font-semibold">
+            <button id="roleBtnStudent" onclick="switchRole('student')" class="px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white text-blue-700 shadow-xs">
+              <i data-lucide="user" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline" data-i18n="roleStudent">O'quvchi</span>
+            </button>
+            <button id="roleBtnTeacher" onclick="switchRole('teacher')" class="px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+              <i data-lucide="book-open-check" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline" data-i18n="roleTeacher">O'qituvchi</span>
+            </button>
+          </div>
+
+          <!-- Foydalanuvchi qisqacha avatari -->
+          <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+            <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm ring-2 ring-blue-500/20" id="userAvatar">
+              AK
+            </div>
+            <div class="hidden lg:block text-left text-xs leading-tight">
+              <p class="font-bold text-slate-800" id="userNameLabel">Aliyev Kamron</p>
+              <p class="text-slate-400" id="userRoleBadge">O'quvchi</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Asosiy Navigatsiya tablari -->
+    <div class="border-t border-slate-100 bg-slate-50/70 backdrop-blur-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex gap-2 sm:gap-4 overflow-x-auto py-2 text-xs font-medium no-scrollbar">
+          <button onclick="navigateTo('diary')" id="tabDiary" class="nav-tab px-3.5 py-2 rounded-lg flex items-center gap-2 transition bg-blue-600 text-white font-semibold shadow-xs">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span data-i18n="tabDiary">Elektron Kundalik</span>
+          </button>
+          <button onclick="navigateTo('journal')" id="tabJournal" class="nav-tab px-3.5 py-2 rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-200/70">
+            <i data-lucide="table" class="w-4 h-4"></i>
+            <span data-i18n="tabJournal">Elektron Jurnal</span>
+          </button>
+          <button onclick="navigateTo('homework')" id="tabHomework" class="nav-tab px-3.5 py-2 rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-200/70">
+            <i data-lucide="check-square" class="w-4 h-4"></i>
+            <span data-i18n="tabHomework">Uy vazifalari</span>
+            <span id="badgePendingHw" class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">3</span>
+          </button>
+          <button onclick="navigateTo('stats')" id="tabStats" class="nav-tab px-3.5 py-2 rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-200/70">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span data-i18n="tabStats">Reyting & Tahlil</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Bildirishnoma (Toast Alert) -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700">
+    <div id="toastIcon" class="w-6 h-6 text-emerald-400">
+      <i data-lucide="check-circle" class="w-6 h-6"></i>
+    </div>
+    <div>
+      <p class="text-xs font-semibold text-white" id="toastTitle">Muvaffaqiyatli</p>
+      <p class="text-[11px] text-slate-300" id="toastMessage">Amal bajarildi</p>
+    </div>
+  </div>
+
+  <!-- Asosiy Asboblar maydoni / Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full grow">
+
+    <!-- 1. ELEKTRON KUNDALIK (DIARY VIEW) -->
+    <section id="sectionDiary" class="space-y-6">
+      <!-- Hafta navigatsiyasi va sarlavha -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md" data-i18n="diarySub">O'quvchi haftalik jadvali</span>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" data-i18n="diaryTitle">Haftalik Kundalik</h1>
+          <p class="text-xs text-slate-500 mt-0.5">2026-o'quv yili • IV-chorak • 9-"A" sinf</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+            <button onclick="changeWeek(-1)" class="p-1.5 rounded-lg hover:bg-white text-slate-700 hover:shadow-xs transition" title="Oldingi hafta">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <span id="currentWeekRange" class="px-3 py-1 text-xs font-semibold flex items-center">6 - 11 Oktabr, 2026</span>
+            <button onclick="changeWeek(1)" class="p-1.5 rounded-lg hover:bg-white text-slate-700 hover:shadow-xs transition" title="Keyingi hafta">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <button onclick="resetToCurrentWeek()" class="text-xs font-medium text-blue-600 hover:text-blue-800 px-3 py-2 bg-blue-50 rounded-xl" data-i18n="todayBtn">Bugun</button>
+        </div>
+      </div>
+
+      <!-- Kunlar grid ko'rinishi (Dushanba - Shanba) -->
+      <div id="diaryDaysGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Dinamik JS orqali kartalar joylanadi -->
+      </div>
+    </section>
+
+    <!-- 2. ELEKTRON JURNAL (TEACHER JOURNAL VIEW) -->
+    <section id="sectionJournal" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 text-xs font-bold bg-purple-100 text-purple-700 rounded-md">O'qituvchi jurnali</span>
+              <span class="text-xs text-slate-500 font-medium">Baho yoki davomat qo'yish uchun katakchani bosing</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Sinf Elektron Jurnali</h2>
+          </div>
+
+          <!-- Filtrlash selectlari -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Sinf:</label>
+              <select id="journalClassSelect" class="bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="9A">9-"A" sinf (24 o'quvchi)</option>
+                <option value="9B">9-"B" sinf (22 o'quvchi)</option>
+                <option value="10A">10-"A" sinf (26 o'quvchi)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Fan:</label>
+              <select id="journalSubjectSelect" onchange="renderJournalTable()" class="bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="algebra">Algebra va Matematika</option>
+                <option value="geometriya">Geometriya</option>
+                <option value="fizika">Fizika</option>
+                <option value="ona_tili">Ona tili va Adabiyot</option>
+                <option value="ingliz_tili">Ingliz tili</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Chorak:</label>
+              <select class="bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold px-3 py-2 outline-none">
+                <option>I-Chorak</option>
+                <option selected>IV-Chorak (Hozirgi)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jurnal jadvali -->
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse min-w-[700px]">
+            <thead>
+              <tr class="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                <th class="py-3 px-3 w-10 text-center">#</th>
+                <th class="py-3 px-3 min-w-[200px]" data-i18n="studentNameCol">O'quvchining F.I.Sh</th>
+                <!-- Dinamik sana ustunlari -->
+                <th class="py-3 px-2 text-center w-14 border-l border-slate-200">01.10</th>
+                <th class="py-3 px-2 text-center w-14 border-l border-slate-200">03.10</th>
+                <th class="py-3 px-2 text-center w-14 border-l border-slate-200">05.10</th>
+                <th class="py-3 px-2 text-center w-14 border-l border-slate-200">07.10</th>
+                <th class="py-3 px-2 text-center w-14 border-l border-slate-200">09.10</th>
+                <th class="py-3 px-2 text-center w-14 border-l border-slate-200">12.10</th>
+                <th class="py-3 px-3 text-center w-24 bg-blue-50 text-blue-900 border-l border-blue-100">O'rtacha</th>
+              </tr>
+            </thead>
+            <tbody id="journalTableBody" class="divide-y divide-slate-100 font-medium">
+              <!-- JS orqali to'ldiriladi -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 5 (A'lo)</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> 4 (Yaxshi)</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> 3 (Qoniqarli)</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-slate-500 inline-block"></span> nb (Kelmagan)</span>
+          </div>
+          <div>
+            <p>💡 <span class="text-slate-700">Maslahat:</span> Bahoni o'zgartirish uchun katakcha ustiga bosing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. UY VAZIFALARI (HOMEWORK TRACKER) -->
+    <section id="sectionHomework" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Vazifalar kundaligi</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" data-i18n="homeworkTitle">Berilgan Uy Vazifalari</h2>
+          <p class="text-xs text-slate-500">Muddati belgilangan va topshirilishi kerak bo'lgan ishlar</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openNewHomeworkModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-xs">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span data-i18n="addHwBtn">Yangi vazifa qo'shish</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vazifalar ro'yxati -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="homeworkListContainer">
+        <!-- JS orqali generatsiya qilinadi -->
+      </div>
+    </section>
+
+    <!-- 4. REYTING VA STATISTIKA (ANALYTICS & RANKINGS) -->
+    <section id="sectionStats" class="hidden space-y-6">
+      <!-- Asosiy KPI Kartalar -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <i data-lucide="award" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500" data-i18n="kpiGpa">O'rtacha o'zlashtirish</p>
+            <h3 class="text-2xl font-extrabold text-slate-900" id="kpiAvgGrade">4.72</h3>
+            <p class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +0.15 o'tgan haftaga nisbatan
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <i data-lucide="check-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500" data-i18n="kpiAttendance">Davomat ko'rsatkichi</p>
+            <h3 class="text-2xl font-extrabold text-slate-900">97.8%</h3>
+            <p class="text-[11px] text-slate-500 font-medium">Faqat 1 ta sababli dars qoldirilgan</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+            <i data-lucide="book-marked" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500" data-i18n="kpiHwDone">Topshirilgan vazifalar</p>
+            <h3 class="text-2xl font-extrabold text-slate-900" id="kpiHwRate">92%</h3>
+            <p class="text-[11px] text-purple-600 font-medium">23 ta vazifadan 21 tasi</p>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <i data-lucide="trophy" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-slate-500" data-i18n="kpiRank">Sinfdagi o'rni</p>
+            <h3 class="text-2xl font-extrabold text-slate-900">2-o'rin</h3>
+            <p class="text-[11px] text-amber-600 font-medium">24 nafar o'quvchi orasida</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Fanlar bo'yicha o'zlashtirish progress barlari -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900" data-i18n="subjectPerformance">Fanlar bo'yicha o'zlashtirish</h3>
+              <p class="text-xs text-slate-500">Joriy chorak yakunlari va ballar</p>
+            </div>
+            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">2026 IV-chorak</span>
+          </div>
+
+          <div class="space-y-4" id="subjectProgressList">
+            <!-- Dinamik qatorlar -->
+          </div>
+        </div>
+
+        <!-- Sinf peshqadamlari (Top 5) -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900" data-i18n="classLeaderboard">Sinf peshqadamlari</h3>
+              <p class="text-xs text-slate-500">Reyting natijalari</p>
+            </div>
+            <i data-lucide="crown" class="w-5 h-5 text-amber-500"></i>
+          </div>
+
+          <div class="space-y-3" id="leaderboardList">
+            <!-- Reyting ro'yxati -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal: Baho qo'yish / O'zgartirish (O'qituvchi uchun) -->
+  <div id="gradeModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 transform transition-all">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-800 text-sm" id="modalStudentName">Baho belgilash</h3>
+        <button onclick="closeGradeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="py-4">
+        <p class="text-xs text-slate-500 mb-3" id="modalSubInfo">Sana va fan</p>
+        
+        <p class="text-xs font-semibold text-slate-700 mb-2">Bahoni tanlang:</p>
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <button onclick="applyGradeValue('5')" class="py-3 rounded-xl bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-extrabold text-lg border border-emerald-200 transition">5</button>
+          <button onclick="applyGradeValue('4')" class="py-3 rounded-xl bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 font-extrabold text-lg border border-blue-200 transition">4</button>
+          <button onclick="applyGradeValue('3')" class="py-3 rounded-xl bg-amber-50 hover:bg-amber-600 hover:text-white text-amber-700 font-extrabold text-lg border border-amber-200 transition">3</button>
+          <button onclick="applyGradeValue('2')" class="py-3 rounded-xl bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-700 font-extrabold text-lg border border-rose-200 transition">2</button>
+        </div>
+
+        <p class="text-xs font-semibold text-slate-700 mb-2">Davomat yoki tozalash:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="applyGradeValue('nb')" class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">
+            nb (Kelmagan)
+          </button>
+          <button onclick="applyGradeValue('')" class="py-2 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs border border-red-200">
+            O'chirish (Bo'sh)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Yangi vazifa qo'shish -->
+  <div id="hwModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-800 text-sm">Yangi Uy Vazifasi Qo'shish</h3>
+        <button onclick="closeHwModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="newHwForm" onsubmit="handleCreateHw(event)" class="py-4 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Fan nomi</label>
+          <select id="hwSubjectInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none" required>
+            <option value="Algebra">Algebra</option>
+            <option value="Geometriya">Geometriya</option>
+            <option value="Fizika">Fizika</option>
+            <option value="Ona tili">Ona tili</option>
+            <option value="Ingliz tili">Ingliz tili</option>
+            <option value="Kimyo">Kimyo</option>
+            <option value="Biologiya">Biologiya</option>
+            <option value="Tarix">Tarix</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Vazifa mazmuni</label>
+          <textarea id="hwDescInput" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masalan: 124-mashq, B va D variantlar" required></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Muddati (Sana)</label>
+            <input type="date" id="hwDateInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Darslik sahifasi</label>
+            <input type="text" id="hwPagesInput" placeholder="Masalan: 45-bet" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeHwModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition">Bekor qilish</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition">Vazifani yuklash</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pastki Footer qismi -->
+  <footer class="bg-white border-t border-slate-200 py-5 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-800">eMaktab Platformasi</span>
+        <span>•</span>
+        <span>Xalq ta'limi tizimi uchun elektron xizmatlar</span>
+      </div>
+      <div>
+        <p>© 2026 Barcha huquqlar himoyalangan. O'zbekiston Respublikasi Maktabgacha va maktab ta'limi vazirligi standarti.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* Dastur Ma'lumotlar bazasi va Default holatlar */
+    const STORAGE_KEY_DIARY = 'emaktab_diary_data_v1';
+    const STORAGE_KEY_JOURNAL = 'emaktab_journal_data_v1';
+    const STORAGE_KEY_HW = 'emaktab_homework_data_v1';
+    const STORAGE_KEY_LANG = 'emaktab_lang_v1';
+    const STORAGE_KEY_ROLE = 'emaktab_role_v1';
+
+    let currentRole = localStorage.getItem(STORAGE_KEY_ROLE) || 'student';
+    let currentLang = localStorage.getItem(STORAGE_KEY_LANG) || 'uz';
+    let currentActiveTab = 'diary';
+
+    // Til lug'ati (O'zbek / Rus)
+    const i18nDictionary = {
+      uz: {
+        roleStudent: "O'quvchi",
+        roleTeacher: "O'qituvchi",
+        tabDiary: "Elektron Kundalik",
+        tabJournal: "Elektron Jurnal",
+        tabHomework: "Uy vazifalari",
+        tabStats: "Reyting & Tahlil",
+        diaryTitle: "Haftalik Kundalik",
+        diarySub: "O'quvchi haftalik jadvali",
+        todayBtn: "Bugun",
+        homeworkTitle: "Berilgan Uy Vazifalari",
+        addHwBtn: "Yangi vazifa qo'shish",
+        kpiGpa: "O'rtacha o'zlashtirish",
+        kpiAttendance: "Davomat ko'rsatkichi",
+        kpiHwDone: "Topshirilgan vazifalar",
+        kpiRank: "Sinfdagi o'rni",
+        subjectPerformance: "Fanlar bo'yicha o'zlashtirish",
+        classLeaderboard: "Sinf peshqadamlari",
+        studentNameCol: "O'quvchining F.I.Sh"
+      },
+      ru: {
+        roleStudent: "Ученик",
+        roleTeacher: "Учитель",
+        tabDiary: "Электронный Дневник",
+        tabJournal: "Электронный Журнал",
+        tabHomework: "Домашние задания",
+        tabStats: "Рейтинг и Аналитика",
+        diaryTitle: "Еженедельный Дневник",
+        diarySub: "Расписание уроков ученика",
+        todayBtn: "Сегодня",
+        homeworkTitle: "Заданные Домашние Задания",
+        addHwBtn: "Добавить задание",
+        kpiGpa: "Средний балл",
+        kpiAttendance: "Посещаемость",
+        kpiHwDone: "Сданные задания",
+        kpiRank: "Место в классе",
+        subjectPerformance: "Успеваемость по предметам",
+        classLeaderboard: "Лидеры класса",
+        studentNameCol: "Ф.И.О. Ученика"
+      }
+    };
+
+    // Kundalik uchun boshlang'ich haftalik ma'lumotlar
+    const initialDiarySchedule = [
+      {
+        dayUz: "Dushanba",
+        dayRu: "Понедельник",
+        date: "6 Oktabr",
+        lessons: [
+          { num: 1, subject: "Algebra", room: "204", topic: "Kvadrat tenglamalar yechish", hw: "№ 142, 143-misollar", grade: "5", teacher: "Karimova Z." },
+          { num: 2, subject: "Ona tili", room: "108", topic: "Qo'shma gaplarning turlari", hw: "54-mashq qoidani yodlash", grade: "4", teacher: "Rahmonov B." },
+          { num: 3, subject: "Fizika", room: "302", topic: "Nyutonning ikkinchi qonuni", hw: "18-paragraf, 3 ta masala", grade: "5", teacher: "Saidov A." },
+          { num: 4, subject: "Ingliz tili", room: "115", topic: "Present Perfect vs Past Simple", hw: "Workbook p. 34, Ex 2", grade: "", teacher: "Usmonova N." }
+        ]
+      },
+      {
+        dayUz: "Seshanba",
+        dayRu: "Вторник",
+        date: "7 Oktabr",
+        lessons: [
+          { num: 1, subject: "Geometriya", room: "204", topic: "Pifagor teoremasi tatbiqi", hw: "88-masala chizmasi bilan", grade: "5", teacher: "Karimova Z." },
+          { num: 2, subject: "Kimyo", room: "308", topic: "Davriy sistema tuzilishi", hw: "Mendeleyev jadvalidan 10 ta element", grade: "4", teacher: "Azizov M." },
+          { num: 3, subject: "Biologiya", room: "112", topic: "O'simliklar hujayrasi", hw: "Daftarga mikroskop sxemasi", grade: "5", teacher: "Qodirova D." },
+          { num: 4, subject: "Tarix", room: "201", topic: "Amir Temur davlati yuksalishi", hw: "Mavzu bo'yicha 5 ta test savoli", grade: "5", teacher: "Sobirov O." }
+        ]
+      },
+      {
+        dayUz: "Chorshanba",
+        dayRu: "Среда",
+        date: "8 Oktabr",
+        lessons: [
+          { num: 1, subject: "Adabiyot", room: "108", topic: "Alisher Navoiy g'azallari tahlili", hw: "Bitta g'azalni yod olish", grade: "5", teacher: "Rahmonov B." },
+          { num: 2, subject: "Algebra", room: "204", topic: "Viyet teoremasi", hw: "148, 149-mashqlar", grade: "4", teacher: "Karimova Z." },
+          { num: 3, subject: "Informatika", room: "Kompyuter 1", topic: "Python dasturlash: Sikllar", hw: "Faktorial hisoblash kodi", grade: "5", teacher: "Aliyeva F." },
+          { num: 4, subject: "Jismoniy tarbiya", room: "Sport zal", topic: "Voleybol to'p uzatish", hw: "Ertalabki badantarbiya", grade: "5", teacher: "Ergashev B." }
+        ]
+      },
+      {
+        dayUz: "Payshanba",
+        dayRu: "Четверг",
+        date: "9 Oktabr",
+        lessons: [
+          { num: 1, subject: "Fizika", room: "302", topic: "Og'irlik kuchi va erkin tushish", hw: "Laboratoriya hisoboti", grade: "4", teacher: "Saidov A." },
+          { num: 2, subject: "Ingliz tili", room: "115", topic: "Vocabulary: Technology & Future", hw: "Essay: AI in our lives", grade: "5", teacher: "Usmonova N." },
+          { num: 3, subject: "Geografiya", room: "210", topic: "O'rta Osiyo iqlim mintaqalari", hw: "Kontur xarita to'ldirish", grade: "5", teacher: "Ismoilov T." },
+          { num: 4, subject: "Ona tili", room: "108", topic: "Imlo qoidalari ustida ishlash", hw: "Lug'at diktantiga tayyorgarlik", grade: "5", teacher: "Rahmonov B." }
+        ]
+      },
+      {
+        dayUz: "Juma",
+        dayRu: "Пятница",
+        date: "10 Oktabr",
+        lessons: [
+          { num: 1, subject: "Algebra", room: "204", topic: "Nazorat ishi tahlili", hw: "Xatolar ustida ishlash", grade: "5", teacher: "Karimova Z." },
+          { num: 2, subject: "Geometriya", room: "204", topic: "Uchburchaklar tengligi alomatlari", hw: "95, 96-masalalar", grade: "4", teacher: "Karimova Z." },
+          { num: 3, subject: "Tarix", room: "201", topic: "Buyuk ipak yo'li savdosi", hw: "Xaritalarni o'rganish", grade: "5", teacher: "Sobirov O." },
+          { num: 4, subject: "Musiqa", room: "Musiqa xonasi", topic: "Klassik maqom san'ati", hw: "Mustaqil eshitish", grade: "5", teacher: "Yusupova S." }
+        ]
+      },
+      {
+        dayUz: "Shanba",
+        dayRu: "Суббота",
+        date: "11 Oktabr",
+        lessons: [
+          { num: 1, subject: "Tarbiya", room: "105", topic: "Vatanparvarlik va burch", hw: "Kichik insho yozish", grade: "5", teacher: "Xolmatova G." },
+          { num: 2, subject: "Texnologiya", room: "Ustaxona", topic: "Modellashtirish asoslari", hw: "Loyiha eskizini chizish", grade: "5", teacher: "Davronov E." },
+          { num: 3, subject: "Ingliz tili", room: "115", topic: "Listening Comprehension", hw: "Audio mashqlar", grade: "4", teacher: "Usmonova N." }
+        ]
+      }
+    ];
+
+    // Jurnal o'quvchilari va baholari
+    const initialStudentsJournal = [
+      { id: 1, name: "Aliyev Kamron", grades: ["5", "5", "4", "5", "5", "5"] },
+      { id: 2, name: "Boboyev Behruz", grades: ["4", "4", "5", "4", "4", "4"] },
+      { id: 3, name: "G'ofurova Madina", grades: ["5", "5", "5", "5", "5", "5"] },
+      { id: 4, name: "Davlatov Sarvar", grades: ["3", "4", "nb", "4", "4", "4"] },
+      { id: 5, name: "Ergasheva Dilnoza", grades: ["5", "4", "5", "4", "5", "5"] },
+      { id: 6, name: "Jalilov Jasur", grades: ["4", "3", "4", "3", "4", "4"] },
+      { id: 7, name: "Karimov Otabek", grades: ["5", "5", "4", "5", "4", "5"] },
+      { id: 8, name: "Nazarova Shahlo", grades: ["5", "5", "5", "5", "5", "4"] },
+      { id: 9, name: "Oripov Farruh", grades: ["4", "nb", "4", "5", "3", "4"] },
+      { id: 10, name: "Rustamova Sevara", grades: ["5", "5", "5", "4", "5", "5"] }
+    ];
+
+    // Uy vazifalari
+    const initialHomeworks = [
+      { id: 1, subject: "Algebra", desc: "148 va 149-masalalar, Viyet teoremasi asosida yechish", due: "2026-10-08", pages: "68-bet", done: false },
+      { id: 2, subject: "Ingliz tili", desc: "Write a short essay (120 words) on 'Artificial Intelligence'", due: "2026-10-09", pages: "Unit 4, p. 45", done: true },
+      { id: 3, subject: "Fizika", desc: "Laboratoriya ishini daftarga rasmiylashtirish va xulosalar yozish", due: "2026-10-09", pages: "32-bet", done: false },
+      { id: 4, subject: "Adabiyot", desc: "Alisher Navoiyning 'Hayrat ul-abror' dostonidan parcha yodlash", due: "2026-10-10", pages: "115-bet", done: false },
+      { id: 5, subject: "Kimyo", desc: "Kimyoviy reaksiyalar tenglamasini tenglashtirish (10 ta misol)", due: "2026-10-12", pages: "52-bet", done: true }
+    ];
+
+    // Fanlar statistikasi
+    const subjectStats = [
+      { name: "Algebra va Geometriya", avg: "4.8", percent: 96, color: "bg-blue-600" },
+      { name: "Ona tili va Adabiyot", avg: "4.9", percent: 98, color: "bg-emerald-600" },
+      { name: "Fizika", avg: "4.6", percent: 92, color: "bg-indigo-600" },
+      { name: "Ingliz tili", avg: "4.7", percent: 94, color: "bg-amber-600" },
+      { name: "Kimyo & Biologiya", avg: "4.5", percent: 90, color: "bg-rose-600" },
+      { name: "Tarix", avg: "5.0", percent: 100, color: "bg-purple-600" }
+    ];
+
+    // LocalStorage-dan ma'lumotlarni yuklab olish
+    let diaryData = JSON.parse(localStorage.getItem(STORAGE_KEY_DIARY)) || initialDiarySchedule;
+    let journalStudents = JSON.parse(localStorage.getItem(STORAGE_KEY_JOURNAL)) || initialStudentsJournal;
+    let homeworkList = JSON.parse(localStorage.getItem(STORAGE_KEY_HW)) || initialHomeworks;
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY_DIARY, JSON.stringify(diaryData));
+      localStorage.setItem(STORAGE_KEY_JOURNAL, JSON.stringify(journalStudents));
+      localStorage.setItem(STORAGE_KEY_HW, JSON.stringify(homeworkList));
+    }
+
+    // Tablar o'rtasida navigatsiya
+    function navigateTo(tabName) {
+      currentActiveTab = tabName;
+      const tabs = ['diary', 'journal', 'homework', 'stats'];
+      tabs.forEach(t => {
+        const sec = document.getElementById('section' + capitalize(t));
+        const btn = document.getElementById('tab' + capitalize(t));
+        if (t === tabName) {
+          sec.classList.remove('hidden');
+          btn.className = "nav-tab px-3.5 py-2 rounded-lg flex items-center gap-2 transition bg-blue-600 text-white font-semibold shadow-xs";
+        } else {
+          sec.classList.add('hidden');
+          btn.className = "nav-tab px-3.5 py-2 rounded-lg flex items-center gap-2 transition text-slate-600 hover:bg-slate-200/70";
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // Rolni almashtirish (O'quvchi <-> O'qituvchi)
+    function switchRole(role) {
+      currentRole = role;
+      localStorage.setItem(STORAGE_KEY_ROLE, role);
+
+      const btnStudent = document.getElementById('roleBtnStudent');
+      const btnTeacher = document.getElementById('roleBtnTeacher');
+      const userAvatar = document.getElementById('userAvatar');
+      const userNameLabel = document.getElementById('userNameLabel');
+      const userRoleBadge = document.getElementById('userRoleBadge');
+
+      if (role === 'teacher') {
+        btnTeacher.className = "px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white text-blue-700 shadow-xs";
+        btnStudent.className = "px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+        userAvatar.textContent = "ZK";
+        userAvatar.className = "w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm ring-2 ring-purple-500/20";
+        userNameLabel.textContent = "Karimova Z. (Ustoz)";
+        userRoleBadge.textContent = "Matematika fani o'qituvchisi";
+        showToast("O'qituvchi rejimi faollashdi", "Endi jurnalga to'g'ridan-to'g'ri baho kiritishingiz mumkin.");
+        // O'qituvchi rejimida to'g'ridan-to'g'ri Jurnal oynasini ko'rsatish
+        navigateTo('journal');
+      } else {
+        btnStudent.className = "px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-white text-blue-700 shadow-xs";
+        btnTeacher.className = "px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+        userAvatar.textContent = "AK";
+        userAvatar.className = "w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm ring-2 ring-blue-500/20";
+        userNameLabel.textContent = "Aliyev Kamron";
+        userRoleBadge.textContent = "9-\"A\" sinf o'quvchisi";
+        showToast("O'quvchi rejimi faollashdi", "Shaxsiy kundalik va uy vazifalari ko'rinishi.");
+        navigateTo('diary');
+      }
+    }
+
+    // Tilni o'zgartirish
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem(STORAGE_KEY_LANG, lang);
+      applyTranslations();
+      renderDiary();
+      renderJournalTable();
+    }
+
+    function applyTranslations() {
+      const dict = i18nDictionary[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+    }
+
+    // Kundalik kartalarini chizish
+    function renderDiary() {
+      const container = document.getElementById('diaryDaysGrid');
+      container.innerHTML = '';
+
+      diaryData.forEach((day, dayIndex) => {
+        const dayTitle = currentLang === 'uz' ? day.dayUz : day.dayRu;
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col hover:border-blue-300 transition-all";
+
+        let lessonsHtml = '';
+        day.lessons.forEach((les) => {
+          let gradeBadge = '';
+          if (les.grade) {
+            let badgeClass = 'badge-grade-' + les.grade;
+            if (les.grade === 'nb') badgeClass = 'badge-nb';
+            gradeBadge = `<span class="px-2 py-0.5 rounded-md text-xs font-bold ${badgeClass} shadow-xs">${les.grade}</span>`;
+          } else {
+            gradeBadge = `<span class="text-[11px] text-slate-300 italic">—</span>`;
+          }
+
+          lessonsHtml += `
+            <div class="py-2.5 px-3 rounded-xl bg-slate-50/60 hover:bg-slate-100/70 border border-slate-100 transition flex items-start justify-between gap-3 text-xs">
+              <div class="flex items-start gap-2.5">
+                <span class="font-bold text-slate-400 mt-0.5 text-[11px]">${les.num}.</span>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-slate-800 text-xs">${les.subject}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">${les.room}-xona</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600 line-clamp-1 mt-0.5 font-medium">${les.topic}</p>
+                  <p class="text-[10px] text-blue-600 mt-0.5 flex items-center gap-1 font-medium">
+                    <i data-lucide="file-text" class="w-3 h-3"></i> ${les.hw}
+                  </p>
+                </div>
+              </div>
+              <div class="shrink-0 flex flex-col items-end gap-1">
+                ${gradeBadge}
+                <span class="text-[9px] text-slate-400">${les.teacher.split(' ')[0]}</span>
+              </div>
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+              <h3 class="font-bold text-slate-800 text-sm">${dayTitle}</h3>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">${day.date}</span>
+          </div>
+          <div class="p-3.5 space-y-2 grow flex flex-col justify-between">
+            <div class="space-y-2">
+              ${lessonsHtml}
+            </div>
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+              <span>Darslar soni: <strong>${day.lessons.length}</strong></span>
+              <span class="text-emerald-600 font-semibold flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Qatnashdi</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    // Jurnal jadvalini dinamik yaratish
+    function renderJournalTable() {
+      const tbody = document.getElementById('journalTableBody');
+      tbody.innerHTML = '';
+
+      journalStudents.forEach((student, sIdx) => {
+        // O'rtacha bahoni hisoblash (faqat sonlar asosida)
+        const numericGrades = student.grades
+          .map(g => parseFloat(g))
+          .filter(n => !isNaN(n));
+        const avg = numericGrades.length > 0 
+          ? (numericGrades.reduce((a, b) => a + b, 0) / numericGrades.length).toFixed(1)
+          : '0.0';
+
+        const row = document.createElement('tr');
+        row.className = "hover:bg-blue-50/50 transition border-b border-slate-100";
+
+        let gradeCells = '';
+        const dates = ["01.10", "03.10", "05.10", "07.10", "09.10", "12.10"];
+
+        student.grades.forEach((grade, gIdx) => {
+          let badgeClass = 'text-slate-400 bg-slate-50';
+          if (grade === '5') badgeClass = 'bg-emerald-100 text-emerald-800 font-bold';
+          else if (grade === '4') badgeClass = 'bg-blue-100 text-blue-800 font-bold';
+          else if (grade === '3') badgeClass = 'bg-amber-100 text-amber-800 font-bold';
+          else if (grade === '2') badgeClass = 'bg-rose-100 text-rose-800 font-bold';
+          else if (grade === 'nb') badgeClass = 'bg-slate-200 text-slate-700 font-bold';
+
+          gradeCells += `
+            <td class="py-2.5 px-2 text-center border-l border-slate-200">
+              <button onclick="openGradeModal(${sIdx}, ${gIdx}, '${student.name}', '${dates[gIdx]}')" class="w-8 h-8 rounded-lg ${badgeClass} inline-flex items-center justify-center text-xs transition hover:scale-105 active:scale-95 shadow-2xs">
+                ${grade || '<span class="text-slate-300">·</span>'}
+              </button>
+            </td>
+          `;
+        });
+
+        row.innerHTML = `
+          <td class="py-2.5 px-3 text-center text-slate-400 font-mono text-[11px]">${sIdx + 1}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-800 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[10px] font-bold">
+              ${student.name.charAt(0)}
+            </span>
+            ${student.name}
+          </td>
+          ${gradeCells}
+          <td class="py-2.5 px-3 text-center font-extrabold text-blue-700 bg-blue-50/50 border-l border-blue-100 text-xs">
+            ${avg}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    let activeModalCell = { sIdx: null, gIdx: null };
+
+    function openGradeModal(sIdx, gIdx, studentName, dateStr) {
+      activeModalCell = { sIdx, gIdx };
+      const currentGrade = journalStudents[sIdx].grades[gIdx] || "Mavjud emas";
+      document.getElementById('modalStudentName').textContent = studentName;
+      document.getElementById('modalSubInfo').textContent = `Sana: ${dateStr}. Hozirgi baho: ${currentGrade}`;
+      document.getElementById('gradeModal').classList.remove('hidden');
+    }
+
+    function closeGradeModal() {
+      document.getElementById('gradeModal').classList.add('hidden');
+    }
+
+    function applyGradeValue(val) {
+      if (activeModalCell.sIdx !== null && activeModalCell.gIdx !== null) {
+        journalStudents[activeModalCell.sIdx].grades[activeModalCell.gIdx] = val;
+        saveData();
+        renderJournalTable();
+        closeGradeModal();
+        showToast("Baho saqlandi!", `${journalStudents[activeModalCell.sIdx].name} uchun o'zgarish kiritildi.`);
+      }
+    }
+
+    function renderHomeworks() {
+      const container = document.getElementById('homeworkListContainer');
+      container.innerHTML = '';
+
+      let pendingCount = 0;
+
+      homeworkList.forEach((hw) => {
+        if (!hw.done) pendingCount++;
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-2xl border transition-all ${hw.done ? 'bg-slate-50/80 border-slate-200 opacity-75' : 'bg-white border-slate-200 hover:border-blue-300 shadow-xs'}`;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold ${hw.done ? 'bg-slate-200 text-slate-600' : 'bg-blue-100 text-blue-700'}">
+              ${hw.subject}
+            </span>
+            <span class="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i> ${hw.due}
+            </span>
+          </div>
+          <p class="text-xs font-semibold text-slate-800 mb-2 leading-relaxed ${hw.done ? 'line-through text-slate-400' : ''}">${hw.desc}</p>
+          <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+            <span class="text-[11px] text-slate-500 font-medium">${hw.pages || 'Qo\'shimcha material'}</span>
+            <button onclick="toggleHwStatus(${hw.id})" class="px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${hw.done ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}">
+              <i data-lucide="${hw.done ? 'check-circle' : 'circle'}" class="w-3.5 h-3.5"></i>
+              ${hw.done ? 'Bajarildi' : 'Bajarish'}
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('badgePendingHw').textContent = pendingCount;
+      const hwRate = Math.round(((homeworkList.length - pendingCount) / homeworkList.length) * 100) || 0;
+      document.getElementById('kpiHwRate').textContent = hwRate + '%';
+      lucide.createIcons();
+    }
+
+    function toggleHwStatus(hwId) {
+      const hw = homeworkList.find(item => item.id === hwId);
+      if (hw) {
+        hw.done = !hw.done;
+        saveData();
+        renderHomeworks();
+        showToast(
+          hw.done ? "Vazifa bajarildi!" : "Holat o'zgartirildi",
+          `"${hw.subject}" fani bo'yicha vazifa holati yangilandi.`
+        );
+      }
+    }
+
+    function openNewHomeworkModal() {
+      // Hozirgi sanani qo'yish
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('hwDateInput').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('hwModal').classList.remove('hidden');
+    }
+
+    function closeHwModal() {
+      document.getElementById('hwModal').classList.add('hidden');
+    }
+
+    function handleCreateHw(e) {
+      e.preventDefault();
+      const subject = document.getElementById('hwSubjectInput').value;
+      const desc = document.getElementById('hwDescInput').value;
+      const due = document.getElementById('hwDateInput').value;
+      const pages = document.getElementById('hwPagesInput').value;
+
+      const newHw = {
+        id: Date.now(),
+        subject,
+        desc,
+        due,
+        pages: pages || "Darslik",
+        done: false
+      };
+
+      homeworkList.unshift(newHw);
+      saveData();
+      renderHomeworks();
+      closeHwModal();
+      e.target.reset();
+      showToast("Yangi vazifa berildi", `${subject} fani uchun vazifa ro'yxatga qo'shildi.`);
+    }
+
+    function renderStats() {
+      // Fanlar progress barlarini chizish
+      const container = document.getElementById('subjectProgressList');
+      container.innerHTML = '';
+
+      subjectStats.forEach(sub => {
+        const item = document.createElement('div');
+        item.className = "space-y-1.5";
+        item.innerHTML = `
+          <div class="flex items-center justify-between text-xs font-semibold">
+            <span class="text-slate-700">${sub.name}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 font-normal">O'rtacha:</span>
+              <span class="text-slate-900 font-bold">${sub.avg}</span>
+            </div>
+          </div>
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="${sub.color} h-2 rounded-full transition-all duration-500" style="width: ${sub.percent}%"></div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      // Leaderboard (Top o'quvchilar)
+      const lbContainer = document.getElementById('leaderboardList');
+      lbContainer.innerHTML = '';
+
+      const topStudents = [
+        { rank: 1, name: "G'ofurova Madina", gpa: "5.00", badge: "🥇" },
+        { rank: 2, name: "Aliyev Kamron (Siz)", gpa: "4.86", badge: "🥈", isUser: true },
+        { rank: 3, name: "Rustamova Sevara", gpa: "4.80", badge: "🥉" },
+        { rank: 4, name: "Nazarova Shahlo", gpa: "4.75", badge: "4" },
+        { rank: 5, name: "Karimov Otabek", gpa: "4.65", badge: "5" }
+      ];
+
+      topStudents.forEach(item => {
+        const row = document.createElement('div');
+        row.className = `p-2.5 rounded-xl border flex items-center justify-between text-xs ${item.isUser ? 'bg-blue-50/70 border-blue-200' : 'bg-slate-50/50 border-slate-100'}`;
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${item.rank <= 3 ? 'bg-amber-100 text-amber-800' : 'text-slate-400'}">
+              ${item.badge}
+            </span>
+            <span class="font-bold ${item.isUser ? 'text-blue-900' : 'text-slate-800'}">${item.name}</span>
+          </div>
+          <span class="font-extrabold text-slate-800 bg-white px-2 py-0.5 rounded-md border border-slate-200">${item.gpa}</span>
+        `;
+        lbContainer.appendChild(row);
+      });
+    }
+
+    // Hafta almashtirish simulyatsiyasi
+    let weekOffset = 0;
+    function changeWeek(direction) {
+      weekOffset += direction;
+      const weekLabel = document.getElementById('currentWeekRange');
+      if (weekOffset === 0) {
+        weekLabel.textContent = "6 - 11 Oktabr, 2026";
+      } else if (weekOffset > 0) {
+        weekLabel.textContent = `${6 + weekOffset * 7} - ${11 + weekOffset * 7} Oktabr, 2026`;
+      } else {
+        weekLabel.textContent = "29 Sentabr - 4 Oktabr, 2026";
+      }
+      showToast("Hafta yangilandi", weekLabel.textContent);
+    }
+
+    function resetToCurrentWeek() {
+      weekOffset = 0;
+      document.getElementById('currentWeekRange').textContent = "6 - 11 Oktabr, 2026";
+      showToast("Joriy hafta", "Hozirgi haftalik jadval ochildi.");
+    }
+
+    // Toast bildirishnoma ko'rsatish
+    let toastTimeout;
+    function showToast(title, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMessage').textContent = message;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Tilni o'rnatish
+      document.getElementById('langSelect').value = currentLang;
+      applyTranslations();
+
+      // Dastlabki rolni yuklash
+      switchRole(currentRole);
+
+      // Renderlar
+      renderDiary();
+      renderJournalTable();
+      renderHomeworks();
+      renderStats();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
